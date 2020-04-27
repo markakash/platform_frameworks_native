@@ -89,6 +89,7 @@ public:
 
         Scheduler& scheduler;
         std::atomic<nsecs_t> lastResyncTime = 0;
+        std::atomic<nsecs_t> lastCallbackTime = 0;
     };
 
     explicit Scheduler(impl::EventControlThread::SetVSyncEnabledFunction function,
@@ -142,7 +143,7 @@ public:
     // Otherwise, if hardware vsync is not already enabled then this method will
     // no-op.
     // The period is the vsync period from the current display configuration.
-    void resyncToHardwareVsync(bool makeAvailable, nsecs_t period);
+    void resyncToHardwareVsync(bool makeAvailable, nsecs_t period, bool force_resync = false);
     // Creates a callback for resyncing.
     ResyncCallback makeResyncCallback(GetVsyncPeriod&& getVsyncPeriod);
     void setRefreshSkipCount(int count);
@@ -236,7 +237,7 @@ private:
     // Function that is called when the display power timer expires.
     void expiredDisplayPowerTimerCallback();
     // Sets vsync period.
-    void setVsyncPeriod(const nsecs_t period);
+    void setVsyncPeriod(const nsecs_t period, bool force_resync = false);
     // handles various timer features to change the refresh rate.
     template <class T>
     void handleTimerStateChanged(T* currentState, T newState, bool eventOnContentDetection);
